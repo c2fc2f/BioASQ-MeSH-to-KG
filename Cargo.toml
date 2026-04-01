@@ -1,0 +1,27 @@
+[package]
+name = "bam2kg"
+version = "0.1.0"
+edition = "2024"
+authors = [
+  "c2fc2f <contact@c2fc2f.com>"
+]
+description = "Converts the BioASQ Task A MeSH annotation dataset (JSON) into a CSV-based Knowledge Graph for Neo4j"
+readme = "README.md"
+repository  = "https://github.com/c2fc2f/BioASQ-MeSH-to-KG"
+license     = "MIT"
+keywords    = [
+  "bioasq", 
+  "mesh", 
+  "knowledge-graph", 
+  "neo4j", 
+]
+categories  = [
+  "command-line-utilities", 
+  "database"
+]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_path_to_error = "0.1.20"
