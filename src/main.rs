@@ -72,27 +72,6 @@ fn deduplicate_bioasq(
     lookup.into_values()
 }
 
-fn multi_replace(input: &str, rules: &[(&str, &str)]) -> String {
-    let mut output: String = String::with_capacity(input.len());
-    let mut i: usize = 0;
-
-    'outer: while i < input.len() {
-        for &(from, to) in rules {
-            if input[i..].starts_with(from) {
-                output.push_str(to);
-                i += from.len();
-                continue 'outer;
-            }
-        }
-
-        let ch: char = input[i..].chars().next().unwrap();
-        output.push(ch);
-        i += ch.len_utf8();
-    }
-
-    output
-}
-
 #[allow(clippy::too_many_arguments)]
 fn write_csv(
     mut a_file: BufWriter<File>,
@@ -124,17 +103,7 @@ fn write_csv(
         writeln!(
             a_file,
             "{0},{0},\"{1}\",\"{2}\",Article",
-            entry.pmid,
-            multi_replace(
-                &entry.title,
-                &[("\"", "\"\""), ("\\n", " "), ("\n", " ")]
-            )
-            .trim(),
-            multi_replace(
-                &entry.r#abstract,
-                &[("\"", "\"\""), ("\\n", " "), ("\n", " ")]
-            )
-            .trim()
+            entry.pmid, entry.title, entry.r#abstract,
         )?;
 
         let j_key: u32 = match seen_journals.get(entry.journal.as_str()) {
@@ -142,12 +111,7 @@ fn write_csv(
                 writeln!(
                     j_file,
                     "{},\"{}\",Journal",
-                    journal_next_id,
-                    multi_replace(
-                        &entry.journal,
-                        &[("\"", "\"\""), ("\\n", " "), ("\n", " ")]
-                    )
-                    .trim(),
+                    journal_next_id, entry.journal,
                 )?;
                 seen_journals.insert(entry.journal, journal_next_id);
                 journal_next_id += 1;
@@ -171,12 +135,7 @@ fn write_csv(
                     writeln!(
                         m_file,
                         "{},\"{}\",MeSH",
-                        mesh_next_id,
-                        multi_replace(
-                            &mesh_term,
-                            &[("\"", "\"\""), ("\\n", " "), ("\n", " ")]
-                        )
-                        .trim(),
+                        mesh_next_id, mesh_term,
                     )?;
                     seen_mesh.insert(mesh_term, mesh_next_id);
                     mesh_next_id += 1;

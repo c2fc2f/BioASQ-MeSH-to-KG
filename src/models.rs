@@ -28,19 +28,71 @@ where
         .map_err(serde::de::Error::custom)
 }
 
+fn escaped_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = String::deserialize(deserializer)?
+        .replace('"', "\"\"")
+        .replace("\\n", " ")
+        .replace('\n', " ")
+        .trim()
+        .to_owned();
+
+    Ok(s)
+}
+
+fn escaped_string_set<'de, D>(
+    deserializer: D,
+) -> Result<HashSet<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct EscapedStringVisitor;
+
+    impl<'de> serde::de::Visitor<'de> for EscapedStringVisitor {
+        type Value = HashSet<String>;
+
+        fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str("a sequence of strings")
+        }
+
+        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        where
+            A: serde::de::SeqAccess<'de>,
+        {
+            let mut set: HashSet<String> = HashSet::new();
+            while let Some(s) = seq.next_element::<String>()? {
+                set.insert(
+                    s.replace('"', "\"\"")
+                        .replace("\\n", " ")
+                        .replace('\n', " ")
+                        .trim()
+                        .to_owned(),
+                );
+            }
+            Ok(set)
+        }
+    }
+
+    deserializer.deserialize_seq(EscapedStringVisitor)
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BioASQEntry {
-    #[serde(rename = "abstractText")]
+    #[serde(rename = "abstractText", deserialize_with = "escaped_string")]
     pub(crate) r#abstract: String,
 
+    #[serde(deserialize_with = "escaped_string")]
     pub(crate) journal: String,
 
-    #[serde(rename = "meshMajor")]
+    #[serde(rename = "meshMajor", deserialize_with = "escaped_string_set")]
     pub(crate) mesh: HashSet<String>,
 
     #[serde(deserialize_with = "parse_from_str")]
     pub(crate) pmid: u32,
 
+    #[serde(deserialize_with = "escaped_string")]
     pub(crate) title: String,
 
     #[serde(deserialize_with = "parse_from_opt_str")]
