@@ -37,7 +37,7 @@ rustPlatform.buildRustPackage {
   meta = with lib; {
     description = "CLI tool that converts the BioASQ Task A MeSH annotation dataset (large JSON) into a CSV-based Knowledge Graph representation (Neo4J)";
     mainProgram = "bam2kg";
-    homepage = "https://github.com/c2fc2f/bam2kg";
+    homepage = "https://github.com/c2fc2f/BioASQ-MeSH-to-KG";
     license = licenses.mit;
     maintainers = [ maintainers.c2fc2f ];
   };
