@@ -31,7 +31,7 @@ The BioASQ Task A dataset contains PubMed articles annotated with MeSH (Medical 
 ### With Nix (recommended)
 
 ```sh
-nix run github:c2fc2f/bam2kg -- --help
+nix run github:c2fc2f/BioASQ-MeSH-to-KG -- --help
 ```
 
 To enter a development shell with all tooling (Rust, rust-analyzer, clippy, rustfmt):
